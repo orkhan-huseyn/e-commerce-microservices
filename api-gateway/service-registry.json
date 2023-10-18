@@ -1,0 +1,4 @@
+{
+  "payments": { "host": "localhost", "port": 45465 },
+  "orders": { "host": "127.0.0.1", "port": 51981 }
+}
