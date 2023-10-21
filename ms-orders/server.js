@@ -16,7 +16,7 @@ const server = app.listen(PORT, HOST, function () {
     .then(function () {
       console.log("Successfully registered on API Gateway.");
     })
-    .catch(function () {
+    .catch(function (error) {
       console.log("Error registering on API Gateway. " + error.message);
     });
 });
