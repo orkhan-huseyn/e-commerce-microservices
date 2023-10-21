@@ -1,27 +1,36 @@
 const express = require("express");
-const { connectToQueue } = require("../lib/rabbitmq");
+const mongoose = require("mongoose");
+
+mongoose.connect("mongodb://127.0.0.1:27017/orders");
+
+const Order = require("./models/order");
 
 const app = express();
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.get("/orders", function (req, res) {
-  console.log(req.headers["x-user-id"]);
-  console.log(req.headers["x-user-email"]);
-  res.send([1, 2, 3]);
+  res.send();
 });
 
-app.post("/orders", async function (_, res) {
-  res.status(201).send();
-  const channel = await connectToQueue();
-  await channel.assertQueue("EMAILS");
-  const emailJob = JSON.stringify({
-    params: {
-      email: "orkhan.huseyn@outlook.com",
-      fullName: "Orkhan Huseynli",
-      confirmationLink: "https://google.com",
+app.post("/orders", async function (req, res) {
+  const userId = req.headers["x-user-id"];
+  const userFullName = req.headers["x-user-fullname"];
+  const userEmail = req.headers["x-user-email"];
+
+  const orderItems = req.body.orderItems;
+
+  const order = await Order.create({
+    user: {
+      id: userId,
+      fullName: userFullName,
+      email: userEmail,
     },
-    type: "CONFIRMATION_EMAIL",
+    items: orderItems,
   });
-  channel.sendToQueue("EMAILS", Buffer.from(emailJob));
+
+  res.status(201).send(order);
 });
 
 module.exports = app;
